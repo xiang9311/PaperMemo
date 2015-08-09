@@ -1,0 +1,27 @@
+<resources>
+
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    
+    <!-- 顶部下拉的高度  -->
+    <dimen name="size_pull_head">70dp</dimen>
+    <dimen name="size_pull_headitem">60dp</dimen>
+    <dimen name="size_pull_head_margin">-35dp</dimen>
+    
+    <!-- 编辑框的高度  -->
+    <dimen name="size_edittext">110dp</dimen>
+    
+    <!-- listviewitem的高度 -->
+    <dimen name="size_list_item">110dp</dimen>
+    <dimen name="size_list_item_ll">130dp</dimen>
+    
+    <!-- text -->
+    <dimen name="size_text_head">15sp</dimen>
+    <dimen name="size_text_edit">16sp</dimen>
+    <dimen name="size_text_stringcount">13sp</dimen>
+    
+    <!-- 标签的宽宽 -->
+    <dimen name="size_button_tag_width">60dp</dimen>
+
+</resources>

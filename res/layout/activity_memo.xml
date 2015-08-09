@@ -1,0 +1,177 @@
+<com.xiang.view.MyScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/ScrollView1"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:scrollbarTrackVertical="@drawable/scrollbar_vertical_track"
+    android:scrollbarThumbVertical="@drawable/scrollbar_vertical_thumb"
+    tools:context=".MemoActivity" >
+
+    <com.xiang.view.PullToAddLayout
+        android:id="@+id/pullToAddLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="500dp"
+        android:background="@color/white" >
+
+        <!-- 下拉后才会显示的头部  android:layout_marginTop="@dimen/size_pull_head_margin"-->
+
+        <FrameLayout
+            android:id="@+id/fl_pullhead"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/size_pull_head"
+             >
+
+            <LinearLayout
+                android:id="@+id/ll_pullhead_items"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="5dp" >
+
+                <ImageView
+                    android:id="@+id/iv_blue"
+                    style="@style/style_pull_headitem"
+                    android:contentDescription="蓝色"
+                    android:src="@drawable/blue_s" />
+
+                <ImageView
+                    android:id="@+id/iv_lightblue"
+                    style="@style/style_pull_headitem"
+                    android:contentDescription="淡蓝色"
+                    android:src="@drawable/lightblue_s" />
+
+                <ImageView
+                    android:id="@+id/iv_lightpink"
+                    style="@style/style_pull_headitem"
+                    android:contentDescription="淡粉色"
+                    android:src="@drawable/lightpink_s" />
+
+                <ImageView
+                    android:id="@+id/iv_yellow"
+                    style="@style/style_pull_headitem"
+                    android:contentDescription="黄色"
+                    android:src="@drawable/yellow_s" />
+
+                <ImageView
+                    android:id="@+id/iv_red"
+                    style="@style/style_pull_headitem"
+                    android:contentDescription="蓝色"
+                    android:src="@drawable/red1_s" />
+
+                <ImageView
+                    android:id="@+id/iv_pink"
+                    style="@style/style_pull_headitem"
+                    android:contentDescription="粉色"
+                    android:src="@drawable/pink_s" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tv_pulltosave"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/pull_to_save"
+                android:textColor="@color/gray"
+                android:textSize="@dimen/size_text_head"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <!-- 下面是编辑部分 和 列表部分 -->
+
+        <RelativeLayout
+            android:id="@+id/rl_edit"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/size_edittext"
+            android:layout_marginBottom="3dp"
+            android:visibility="gone" >
+
+            <EditText
+                android:id="@+id/et_add"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/size_edittext"
+                android:background="@drawable/lightpink"
+                android:gravity="top"
+                android:hint="@string/edithint1"
+                android:maxLength="80"
+                android:padding="5dp"
+                android:textSize="@dimen/size_text_edit" />
+
+            <TextView
+                android:id="@+id/tv_stringcount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginBottom="3dp"
+                android:layout_marginRight="3dp"
+                android:text="0/80"
+                android:textColor="@color/gray"
+                android:textSize="@dimen/size_text_stringcount" />
+        </RelativeLayout>
+
+        <!-- 下面是列表分类显示 -->
+
+
+        <!-- 分类标签 -->
+        
+        <LinearLayout 
+            android:id="@+id/ll_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:minHeight="200dp"
+            android:orientation="vertical" >
+            
+        
+
+        <LinearLayout
+            android:id="@+id/ll_tags"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/fl_edit"
+            android:background="@color/white"
+            android:orientation="horizontal" >
+
+            <Button
+                android:id="@+id/b_all"
+                style="@style/style_list_tag"
+                android:background="@color/y_lightblue"
+                android:text="所有" />
+
+            <Button
+                android:id="@+id/b_top"
+                style="@style/style_list_tag"
+                android:background="@color/y_yellow"
+                android:text="置顶" />
+
+            <Button
+                android:id="@+id/b_shared"
+                style="@style/style_list_tag"
+                android:background="@color/y_red"
+                android:text="分享" />
+
+            <Button
+                android:id="@+id/b_collect"
+                style="@style/style_list_tag"
+                android:background="@color/y_pink"
+                android:text="收藏" />
+        </LinearLayout>
+
+        <com.xiang.view.MyListView
+            android:id="@+id/lv_memos"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/ll_tags"
+            android:background="@color/y_lightblue"
+            android:padding="5dp"
+            android:divider="@color/white"
+            android:dividerHeight="2dp" >
+        </com.xiang.view.MyListView>
+        
+        </LinearLayout>
+    </com.xiang.view.PullToAddLayout>
+
+</com.xiang.view.MyScrollView>

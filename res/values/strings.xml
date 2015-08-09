@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">小纸条便签</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_memo">MemoActivity</string>
+    
+    <string name="pull_to_save">下拉保存</string>
+    <string name="edithint1">下拉保存，左滑删除</string>
+
+</resources>
