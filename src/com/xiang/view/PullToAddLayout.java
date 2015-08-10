@@ -1,6 +1,8 @@
 package com.xiang.view;
 
+import com.xiang.model.LayoutMove;
 import com.xiang.model.LayoutPosition;
+import com.xiang.model.LayoutZoom;
 import com.xiang.papermemo.MemoActivity;
 
 import android.content.Context;
@@ -25,6 +27,15 @@ public class PullToAddLayout extends RelativeLayout {
 	 * 颜色块数量
 	 */
 	public static final int colorCount = 6;
+	/**
+	 * 动画执行的毫秒数
+	 */
+	public static final int during = 200;
+	/**
+	 * 动画线程休眠的时间
+	 */
+	public static final int sleeptime = 20;
+	
 	
 	/********************************   控件       ******************************************/
 	/**
@@ -133,7 +144,7 @@ public class PullToAddLayout extends RelativeLayout {
 	 */
 	float rate = 1.0f;
 	/**
-	 * 下拉的目标位置
+	 * 下拉的目标位置 初始值无用 ，下拉后根据顶部控件位置设置
 	 */
 	float desDistence = 350.0f;
 	/**
@@ -184,12 +195,24 @@ public class PullToAddLayout extends RelativeLayout {
 			else if(pullstate.pulltosave == state){
 				pulldownadd(ev);
 			}
-			else if(pullstate.showingcolor == state){
+			else if(pullstate.showingcolor == state && ev.getY() > lastY && ll_pullhead_items.getY() == 0){
+				pulldown(ev);
+//				state = pullstate.pulltoadd;
 				break;
 			}
 			break;
 		case MotionEvent.ACTION_UP:
 			boolean pullisok = isPullOk(ev);
+			//下拉取消showcolor
+			if(pullstate.showingcolor == state){
+				if(isPullCloseColorOk(ev)){
+					state = pullstate.normal;
+					layoutCloseColor();
+				}
+				else{
+					layoutShowColor(ev);
+				}
+			}
 			//如果下拉的幅度够大，下拉成功
 			if(pullisok){
 				if(pullstate.pulltoadd == state){
@@ -223,15 +246,46 @@ public class PullToAddLayout extends RelativeLayout {
 	}
 
 
+	private void layoutCloseColor() {
+		LayoutMove move = new LayoutMove(ll_content,ll_content.getLeft(),
+				0 ,
+				ll_content.getRight(),
+				(int) (ll_content.getBottom() - ll_content.getTop() + 0));
+		new MoveLayoutThread(move).start();
+		for(int i = 0 ; i < colorCount ; i ++){
+			LayoutZoom zoom = new LayoutZoom(imageViews[i],0.0f,0.0f);
+			new SizeLayoutThread(zoom).start();
+		}
+	}
+
+
+	private boolean isPullCloseColorOk(MotionEvent ev) {
+		if(ev.getY() - downY >= 300)
+			return true;
+		return false;
+	}
+
+
 	private void layoutToAdding(MotionEvent ev) {
 		// TODO Auto-generated method stub
 		
 	}
 
 
+	/**
+	 * 首次下拉距离不够，回到初始位置
+	 * @param ev
+	 */
 	private void layoutAddToNormal(MotionEvent ev) {
-		// TODO Auto-generated method stub
-		
+		LayoutMove move = new LayoutMove(ll_content,ll_content.getLeft(),
+				0 ,
+				ll_content.getRight(),
+				(int) (ll_content.getBottom() - ll_content.getTop() + 0));
+		new MoveLayoutThread(move).start();
+		for(int i = 0 ; i < colorCount ; i ++){
+			LayoutZoom zoom = new LayoutZoom(imageViews[i],0.0f,0.0f);
+			new SizeLayoutThread(zoom).start();
+		}
 	}
 
 
@@ -239,48 +293,26 @@ public class PullToAddLayout extends RelativeLayout {
 		// TODO Auto-generated method stub
 		
 	}
-
-
+	
+	/**
+	 * 下拉足够，显示颜色块
+	 * @param ev
+	 */
 	private void layoutShowColor(MotionEvent ev) {
-		new Thread(new Runnable(){
-
-			@Override
-			public void run() {
-				long time = System.currentTimeMillis();
-				long starttime = 0;
-				int recometime = 200;
-				float startY = ll_content.getTop();
-				float startB = ll_content.getBottom();
-				while(true){
-					try {
-						Thread.sleep(20);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-					long t = System.currentTimeMillis();
-					float y = t - time;
-					if(y >= 200)
-						break;
-					y = y / 200 * (startY - desDistence);
-					Log.d(TAG,y+"");
-					Message msg = new Message();
-					msg.what = 90;
-					msg.obj = new LayoutPosition(ll_content.getLeft(), 
-							(int)(startY - y), ll_content.getRight(), (int) (startB - y));
-					MemoActivity.that.mHandler.sendMessage(msg);
-				}
-				Message msg = new Message();
-				msg.what = 90;
-				msg.obj = new LayoutPosition(ll_content.getLeft(), (int) desDistence, ll_content.getRight(), (int) (startB - startY + desDistence));
-				MemoActivity.that.mHandler.sendMessage(msg);
-			}
-			
-		}).start();
+		LayoutMove move = new LayoutMove(ll_content,ll_content.getLeft(),
+				(int) desDistence,
+				ll_content.getRight(),
+				(int) (ll_content.getBottom() - ll_content.getTop() + desDistence));
+		new MoveLayoutThread(move).start();
+		for(int i = 0 ; i < colorCount ; i ++){
+			LayoutZoom zoom = new LayoutZoom(imageViews[i],1.0f,1.0f);
+			new SizeLayoutThread(zoom).start();
+		}
 	}
 
 
 	private boolean isPullOk(MotionEvent ev) {
-		if(ev.getY() - downY > desDistence)
+		if(imageViews[0].getScaleX() >= 1.0f)
 			return true;
 		return false;
 	}
@@ -291,7 +323,6 @@ public class PullToAddLayout extends RelativeLayout {
 		
 	}
 
-
 	/**
 	 * 从 normal到add的下拉
 	 * @param ev 
@@ -300,41 +331,38 @@ public class PullToAddLayout extends RelativeLayout {
 		float y = ev.getY();
 		float my = y - lastY;
 		float minus = y - downY;
+		float maxd = maxDistence;
 		lastY = y;
 		
+		if(pullstate.showingcolor == state)
+			maxd = 350;
+		
 //		//计算下拉跟运动的比率，显示弹性效果
-		if(minus > maxDistence)
+		if(minus > maxd)
 			rate = 0;
 		else if(minus > 0)
-			rate = (maxDistence - minus) / maxDistence;
+			rate = (maxd - minus) / maxd;
 //		Log.d(TAG,state+":"+my);
 		
-		//计算scale
-		float scale = 1.0f;
-		if(minus > maxDisScale)
-			scale = 1.1f;
-		else
-			scale = (float) ((minus / maxDisScale) * 1.1);
+		if(pullstate.showingcolor != state){
+			//计算scale
+			float scale = 1.0f;
+			if(minus > maxDisScale)
+				scale = 1.15f;
+			else
+				scale = (float) ((minus / maxDisScale) * 1.15);
+			for(int i = 0 ;i < colorCount ; i ++){
+				imageViews[i].setScaleX(scale);
+				imageViews[i].setScaleY(scale);
+			}
+		}
 		
 		ll_content.layout(ll_content.getLeft(), 
 				(int) (ll_content.getTop() + my * rate),
 				ll_content.getRight(),
 				(int) (ll_content.getBottom() + my * rate));
 		
-//		fl_pullhead.layout(fl_pullhead.getLeft(),
-//				(int) (fl_pullhead.getTop() + my * rate / 2),
-//				fl_pullhead.getRight(),
-//				(int) (fl_pullhead.getBottom() + my * rate * 2));
 		
-//		ll_pullhead_items.layout(ll_pullhead_items.getLeft(),
-//				(int) (ll_pullhead_items.getTop() + my * rate / 2),
-//				ll_pullhead_items.getRight(),
-//				(int) (ll_pullhead_items.getBottom() + my * rate * 2));
-		
-		for(int i = 0 ;i < colorCount ; i ++){
-			imageViews[i].setScaleX(scale);
-			imageViews[i].setScaleY(scale);
-		}
 		
 	}
 
@@ -363,6 +391,89 @@ public class PullToAddLayout extends RelativeLayout {
 	public PullToAddLayout(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		this.context = context;
+	}
+	
+	class SizeLayoutThread extends Thread{
+		
+		public LayoutZoom zoom;
+		
+		public SizeLayoutThread(LayoutZoom zoom){
+			this.zoom = zoom;
+		}
+		
+		@Override
+		public void run() {
+			long time = System.currentTimeMillis();
+			float size_x = zoom.view.getScaleX();
+			float size_y = zoom.view.getScaleY();
+			while(true){
+				try {
+					Thread.sleep(sleeptime);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				long t = System.currentTimeMillis();
+				float y = t - time;
+				if(y >= during)
+					break;
+				float tosize = (zoom.sizeX - size_x) / 200 * y + size_x;
+				LayoutZoom z = new LayoutZoom(zoom.view, tosize, tosize);
+				Message msg = new Message();
+				msg.what = 91;
+				msg.obj = z;
+				MemoActivity.that.mHandler.sendMessage(msg);
+			}
+			Message msg = new Message();
+			msg.what = 91;
+			msg.obj = zoom;
+			MemoActivity.that.mHandler.sendMessage(msg);
+		}
+		
+	}
+	
+	/**
+	 * 移动layout的线程从当前位置一定到move中定义的目标位置
+	 * @author 祥祥
+	 *
+	 */
+	class MoveLayoutThread extends Thread{
+		LayoutMove move;
+		public MoveLayoutThread(LayoutMove move){
+			this.move = move;
+		}
+
+		@Override
+		public void run() {
+			long time = System.currentTimeMillis();
+			float startY = move.layout.getTop();
+			float startB = move.layout.getBottom();
+			while(true){
+				try {
+					Thread.sleep(20);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				long t = System.currentTimeMillis();
+				float y = t - time;
+				if(y >= during)
+					break;
+				y = y / during * (startY - move.top);
+				Log.d(TAG,y+"");
+				Message msg = new Message();
+				msg.what = 90;
+				msg.obj = new LayoutMove(move.layout, move.layout.getLeft(), 
+						(int)(startY - y), move.layout.getRight(), (int) (startB - y));
+				MemoActivity.that.mHandler.sendMessage(msg);
+			}
+			Message msg = new Message();
+			msg.what = 90;
+			msg.obj = new LayoutMove(move.layout, move.layout.getLeft(),
+					(int) move.top, 
+					move.layout.getRight(),
+					(int) (startB - startY + move.top));
+			MemoActivity.that.mHandler.sendMessage(msg);
+		}
+		
 	}
 	
 	

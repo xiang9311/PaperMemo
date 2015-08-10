@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.xiang.adapter.MemoListAdapter;
+import com.xiang.model.LayoutMove;
 import com.xiang.model.LayoutPosition;
+import com.xiang.model.LayoutZoom;
 import com.xiang.model.Memo;
 import com.xiang.model.Memo.yColor;
 import com.xiang.view.MyListView;
@@ -169,9 +171,14 @@ public class MemoActivity extends Activity {
 		public void handleMessage(Message msg) {
 			switch(msg.what){
 			case 90:
-				LayoutPosition lp =  (LayoutPosition) msg.obj;
+				LayoutMove lp =  (LayoutMove) msg.obj;
 //				Log.d("ac",lp.top+"");
-				ll_content.layout(lp.left, lp.top, lp.right, lp.bottom);
+				lp.layout.layout(lp.left, lp.top, lp.right, lp.bottom);
+				break;
+			case 91:
+				LayoutZoom lz = (LayoutZoom) msg.obj;
+				lz.view.setScaleX(lz.sizeX);
+				lz.view.setScaleY(lz.sizeX);
 			}
 			super.handleMessage(msg);
 		}
