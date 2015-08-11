@@ -10,6 +10,7 @@ import com.xiang.model.LayoutZoom;
 import com.xiang.model.Memo;
 import com.xiang.model.Memo.yColor;
 import com.xiang.view.MyListView;
+import com.xiang.view.MyScrollView;
 import com.xiang.view.PullToAddLayout;
 
 import android.os.Bundle;
@@ -86,6 +87,10 @@ public class MemoActivity extends Activity {
 	 * 下面的显示内容
 	 */
 	public LinearLayout ll_content = null;
+	/**
+	 * scrollview
+	 */
+	public MyScrollView scrollView = null;
 	
 	
 	public MyHandler mHandler = null;
@@ -118,6 +123,7 @@ public class MemoActivity extends Activity {
 		tv_pulltosave = (TextView) findViewById(R.id.tv_pulltosave);
 		ll_tags = (LinearLayout) findViewById(R.id.ll_tags);
 		ll_content = (LinearLayout) findViewById(R.id.ll_content);
+		scrollView = (MyScrollView) findViewById(R.id.ScrollView1);
 		
 		InitPullToAddLayout();
 		
@@ -146,6 +152,7 @@ public class MemoActivity extends Activity {
 		pullToAddLayout.listView = listview;
 		pullToAddLayout.ll_content = ll_content;
 		pullToAddLayout.ll_pullhead_items = (LinearLayout) findViewById(R.id.ll_pullhead_items);
+		pullToAddLayout.scrollView = scrollView;
 		
 		pullToAddLayout.imageViews[0] = iv_blue;
 		pullToAddLayout.imageViews[1] = iv_lightblue;
@@ -153,15 +160,17 @@ public class MemoActivity extends Activity {
 		pullToAddLayout.imageViews[3] = iv_pink;
 		pullToAddLayout.imageViews[4] = iv_red;
 		pullToAddLayout.imageViews[5] = iv_yellow;
+		
+//		pullToAddLayout.init();
 	}
 
 	private void addTestData() {
 		memos.add(new Memo("注意：这些枚举值都是public static fina ","12:00",yColor.blue));
-//		memos.add(new Memo("  ordinal()方法: 返回枚举值在枚举类种的顺序。这个顺序根据枚举值inal()方法: 返回枚举值在枚举类种的顺序。这个顺序根据枚举值声明的顺序而定。 ","12:00",yColor.lightblue));
-//		memos.add(new Memo("注意：这些枚举值都是public static final的，也就是我们经常所定义的常量方式，因此枚举类中的枚举值最好全部大写。 ","12:00",yColor.lightpink));
-//		memos.add(new Memo("注意：这些枚举值都是pu ","12:00",yColor.yellow));
-//		memos.add(new Memo("2、即然枚举类是class，当然在枚举类型中有构造器，方法和数据域。但是，枚举类的构造器有很大的不同：  ","12:00",yColor.blue));
-//		memos.add(new Memo("注意：这些枚举值都是public static final的，也就是我们经常所定义的常量方式，因此枚举类中的枚举值最好全部大写。 ","12:00",yColor.pink));
+		memos.add(new Memo("  ordinal()方法: 返回枚举值在枚举类种的顺序。这个顺序根据枚举值inal()方法: 返回枚举值在枚举类种的顺序。这个顺序根据枚举值声明的顺序而定。 ","12:00",yColor.lightblue));
+		memos.add(new Memo("注意：这些枚举值都是public static final的，也就是我们经常所定义的常量方式，因此枚举类中的枚举值最好全部大写。 ","12:00",yColor.lightpink));
+		memos.add(new Memo("注意：这些枚举值都是pu ","12:00",yColor.yellow));
+		memos.add(new Memo("2、即然枚举类是class，当然在枚举类型中有构造器，方法和数据域。但是，枚举类的构造器有很大的不同：  ","12:00",yColor.blue));
+		memos.add(new Memo("注意：这些枚举值都是public static final的，也就是我们经常所定义的常量方式，因此枚举类中的枚举值最好全部大写。 ","12:00",yColor.pink));
 	}
 	
 	public class MyHandler extends Handler{

@@ -90,6 +90,10 @@ public class PullToAddLayout extends RelativeLayout {
 	 * imageview的外面的布局
 	 */
 	public LinearLayout ll_pullhead_items = null;
+	/**
+	 * scrollview
+	 */
+	public MyScrollView scrollView = null;
 	
 	/*******************************************   状态     ******************************/
 	/**
@@ -155,7 +159,18 @@ public class PullToAddLayout extends RelativeLayout {
 	 * scale 的最大位置
 	 */
 	float maxDisScale = 400.0f;
-	
+	/**
+	 * 按下时控件的top
+	 */
+	float starttop_ll_content = 0.0f;
+	/**
+	 * 按下时控件的底部
+	 */
+	float startbottom_ll_content = 0.0f;
+	/**
+	 * ll_content的startlocation的Y坐标
+	 */
+	int startLocationY_ll_content = 0;
 	
 
 	//如果执行该逻辑的滑动，则返回true。外层控件将不会滑动
@@ -168,11 +183,13 @@ public class PullToAddLayout extends RelativeLayout {
 			downY = ev.getY();
 			lastX = ev.getX();
 			lastY = ev.getY();
+			starttop_ll_content = ll_content.getTop();
+			startbottom_ll_content = ll_content.getBottom();
 			desDistence = fl_pullhead.getMeasuredHeight();
 			break;
 		case MotionEvent.ACTION_MOVE:
 			//如果是初始状态的下拉，则转换成下拉状态
-			if(pullstate.normal == state && this.getY() == 0){
+			if(pullstate.normal == state && scrollView.getScrollY() == 0){
 				//如果已经位于顶部
 				if(ev.getY() > downY){
 					state = pullstate.pulltoadd;
@@ -195,7 +212,7 @@ public class PullToAddLayout extends RelativeLayout {
 			else if(pullstate.pulltosave == state){
 				pulldownadd(ev);
 			}
-			else if(pullstate.showingcolor == state && ev.getY() > lastY && ll_pullhead_items.getY() == 0){
+			else if(pullstate.showingcolor == state && ev.getY() > downY && ll_pullhead_items.getY() == 0){
 				pulldown(ev);
 //				state = pullstate.pulltoadd;
 				break;
@@ -377,6 +394,13 @@ public class PullToAddLayout extends RelativeLayout {
 	 * 上下文
 	 */
 	private Context context = null;
+	
+//	public void init(){
+//		int[] location = new int[2];
+//		ll_content.getLocationInWindow(location);
+//		startLocationY_ll_content = location[1];
+//		Log.d(TAG,"get ll_content locationY:"+startLocationY_ll_content);
+//	}
 
 	public PullToAddLayout(Context context) {
 		
@@ -458,7 +482,7 @@ public class PullToAddLayout extends RelativeLayout {
 				if(y >= during)
 					break;
 				y = y / during * (startY - move.top);
-				Log.d(TAG,y+"");
+//				Log.d(TAG,y+"");
 				Message msg = new Message();
 				msg.what = 90;
 				msg.obj = new LayoutMove(move.layout, move.layout.getLeft(), 
