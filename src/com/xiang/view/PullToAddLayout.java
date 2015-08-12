@@ -1,8 +1,12 @@
 package com.xiang.view;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import com.xiang.model.LayoutMove;
 import com.xiang.model.LayoutPosition;
 import com.xiang.model.LayoutZoom;
+import com.xiang.model.Memo.yColor;
 import com.xiang.papermemo.MemoActivity;
 
 import android.content.Context;
@@ -11,6 +15,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -34,7 +39,7 @@ public class PullToAddLayout extends RelativeLayout {
 	/**
 	 * 动画线程休眠的时间
 	 */
-	public static final int sleeptime = 20;
+	public static final int sleeptime = 15;
 	
 	
 	/********************************   控件       ******************************************/
@@ -94,6 +99,10 @@ public class PullToAddLayout extends RelativeLayout {
 	 * scrollview
 	 */
 	public MyScrollView scrollView = null;
+	/**
+	 * 编辑框他爹
+	 */
+	public RelativeLayout rl_edit = null;
 	
 	/*******************************************   状态     ******************************/
 	/**
@@ -171,6 +180,18 @@ public class PullToAddLayout extends RelativeLayout {
 	 * ll_content的startlocation的Y坐标
 	 */
 	int startLocationY_ll_content = 0;
+	/**
+	 * 是否当scrollY不为0时下拉，
+	 */
+	boolean flag_newDownY = true;
+	/**
+	 * 下拉时的总结果偏移量
+	 */
+	float move_y = 0.0f;
+	/**
+	 * 该无意义数字表示要重新获取相关高度
+	 */
+	float nheight = -1;
 	
 
 	//如果执行该逻辑的滑动，则返回true。外层控件将不会滑动
@@ -190,6 +211,11 @@ public class PullToAddLayout extends RelativeLayout {
 		case MotionEvent.ACTION_MOVE:
 			//如果是初始状态的下拉，则转换成下拉状态
 			if(pullstate.normal == state && scrollView.getScrollY() == 0){
+				if(flag_newDownY){
+					downY = ev.getY();
+					lastY = ev.getY();
+					flag_newDownY = false;
+				}
 				//如果已经位于顶部
 				if(ev.getY() > downY){
 					state = pullstate.pulltoadd;
@@ -212,13 +238,18 @@ public class PullToAddLayout extends RelativeLayout {
 			else if(pullstate.pulltosave == state){
 				pulldownadd(ev);
 			}
-			else if(pullstate.showingcolor == state && ev.getY() > downY && ll_pullhead_items.getY() == 0){
+			else if(pullstate.showingcolor == state && ev.getY() > downY && scrollView.getScrollY() == 0){
+				if(flag_newDownY){
+					downY = ev.getY();
+					flag_newDownY = false;
+				}
 				pulldown(ev);
 //				state = pullstate.pulltoadd;
 				break;
 			}
 			break;
 		case MotionEvent.ACTION_UP:
+			flag_newDownY = true;
 			boolean pullisok = isPullOk(ev);
 			//下拉取消showcolor
 			if(pullstate.showingcolor == state){
@@ -287,7 +318,8 @@ public class PullToAddLayout extends RelativeLayout {
 		// TODO Auto-generated method stub
 		
 	}
-
+	
+	
 
 	/**
 	 * 首次下拉距离不够，回到初始位置
@@ -382,6 +414,34 @@ public class PullToAddLayout extends RelativeLayout {
 		
 		
 	}
+	
+	public void ShowingColor2Edit(yColor color){
+		ExecutorService  service = Executors.newSingleThreadExecutor();
+		rl_edit.setScaleX(0);
+		rl_edit.setScaleY(0);
+		rl_edit.setVisibility(View.VISIBLE);
+//		Log.d("TAG",""+rl_edit.getHeight());
+		LayoutZoom zoom = new LayoutZoom(fl_pullhead,0.0f,0.0f);
+		service.execute(new SizeLayoutThread(zoom));
+		
+		LayoutZoom z = new LayoutZoom(rl_edit,1.0f,1.0f);
+		Thread t1 = new SizeLayoutThread(z);
+
+		service.execute(t1);
+		
+		LayoutMove move = new LayoutMove(ll_content,ll_content.getLeft(),
+				(int)nheight ,
+				ll_content.getRight(),
+				(int)nheight);
+		Thread t2 = new MoveLayoutThread(move);
+		service.execute(t2);
+		
+		
+		
+		
+		
+	}
+
 
 
 	/**
@@ -427,9 +487,9 @@ public class PullToAddLayout extends RelativeLayout {
 		
 		@Override
 		public void run() {
+			
 			long time = System.currentTimeMillis();
 			float size_x = zoom.view.getScaleX();
-			float size_y = zoom.view.getScaleY();
 			while(true){
 				try {
 					Thread.sleep(sleeptime);
@@ -440,7 +500,7 @@ public class PullToAddLayout extends RelativeLayout {
 				float y = t - time;
 				if(y >= during)
 					break;
-				float tosize = (zoom.sizeX - size_x) / 200 * y + size_x;
+				float tosize = (zoom.sizeX - size_x) / 300 * y + size_x;
 				LayoutZoom z = new LayoutZoom(zoom.view, tosize, tosize);
 				Message msg = new Message();
 				msg.what = 91;
@@ -468,6 +528,12 @@ public class PullToAddLayout extends RelativeLayout {
 
 		@Override
 		public void run() {
+			
+			if(nheight == move.top){
+				move.top = rl_edit.getMeasuredHeight() + 5;
+				move.bottom = ll_content.getBottom() - ll_content.getTop() + rl_edit.getMeasuredHeight() + 5;
+			}
+			
 			long time = System.currentTimeMillis();
 			float startY = move.layout.getTop();
 			float startB = move.layout.getBottom();

@@ -20,10 +20,13 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.util.Log;
 import android.view.Menu;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
@@ -91,9 +94,25 @@ public class MemoActivity extends Activity {
 	 * scrollview
 	 */
 	public MyScrollView scrollView = null;
+	/**
+	 * 编辑框他爹
+	 */
+	public RelativeLayout rl_edit = null;
+	
+	/*****/
+	
+	/**
+	 * 当前选的颜色
+	 */
+	private yColor currentcolor;
 	
 	
 	public MyHandler mHandler = null;
+	
+	/**
+	 * 图片按钮的点击监听
+	 */
+	private ColorImageOnClickListener onclickListener = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -102,9 +121,18 @@ public class MemoActivity extends Activity {
 		
 		that = this;
 		
+		onclickListener = new ColorImageOnClickListener();
+		
 		init();
 		
+		initImageViewListener();
+		
 		mHandler = new MyHandler();
+		
+	}
+
+	private void initImageViewListener() {
+		iv_blue.setOnClickListener(onclickListener);
 	}
 
 	private void init() {
@@ -124,6 +152,7 @@ public class MemoActivity extends Activity {
 		ll_tags = (LinearLayout) findViewById(R.id.ll_tags);
 		ll_content = (LinearLayout) findViewById(R.id.ll_content);
 		scrollView = (MyScrollView) findViewById(R.id.ScrollView1);
+		rl_edit = (RelativeLayout) findViewById(R.id.rl_edit);
 		
 		InitPullToAddLayout();
 		
@@ -135,7 +164,6 @@ public class MemoActivity extends Activity {
 		b_all.setFocusable(true);
 		b_all.setFocusableInTouchMode(true);
 		b_all.requestFocus();
-//		((ScrollView)findViewById(R.id.ScrollView1)).scrollTo(0, 0);
 	}
 
 	//初始化PullToAddLayout中的控件
@@ -153,6 +181,7 @@ public class MemoActivity extends Activity {
 		pullToAddLayout.ll_content = ll_content;
 		pullToAddLayout.ll_pullhead_items = (LinearLayout) findViewById(R.id.ll_pullhead_items);
 		pullToAddLayout.scrollView = scrollView;
+		pullToAddLayout.rl_edit = rl_edit;
 		
 		pullToAddLayout.imageViews[0] = iv_blue;
 		pullToAddLayout.imageViews[1] = iv_lightblue;
@@ -181,7 +210,6 @@ public class MemoActivity extends Activity {
 			switch(msg.what){
 			case 90:
 				LayoutMove lp =  (LayoutMove) msg.obj;
-//				Log.d("ac",lp.top+"");
 				lp.layout.layout(lp.left, lp.top, lp.right, lp.bottom);
 				break;
 			case 91:
@@ -190,6 +218,19 @@ public class MemoActivity extends Activity {
 				lz.view.setScaleY(lz.sizeX);
 			}
 			super.handleMessage(msg);
+		}
+		
+	}
+	
+	public class ColorImageOnClickListener implements OnClickListener{
+
+		@Override
+		public void onClick(View v) {
+			switch(v.getId()){
+			case R.id.iv_blue:
+				pullToAddLayout.ShowingColor2Edit(yColor.blue);
+				break;
+			}
 		}
 		
 	}
