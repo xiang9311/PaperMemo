@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.xiang.adapter.MemoListAdapter;
+import com.xiang.model.LayoutAlpha;
 import com.xiang.model.LayoutMove;
 import com.xiang.model.LayoutPosition;
 import com.xiang.model.LayoutZoom;
@@ -23,6 +24,7 @@ import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -98,6 +100,10 @@ public class MemoActivity extends Activity {
 	 * ±à¼­¿òËûµù
 	 */
 	public RelativeLayout rl_edit = null;
+	/**
+	 * ±à¼­¿ò
+	 */
+	public EditText et_add = null;
 	
 	/*****/
 	
@@ -133,6 +139,11 @@ public class MemoActivity extends Activity {
 
 	private void initImageViewListener() {
 		iv_blue.setOnClickListener(onclickListener);
+		iv_lightblue.setOnClickListener(onclickListener);
+		iv_lightpink.setOnClickListener(onclickListener);
+		iv_pink.setOnClickListener(onclickListener);
+		iv_red.setOnClickListener(onclickListener);
+		iv_yellow.setOnClickListener(onclickListener);
 	}
 
 	private void init() {
@@ -153,6 +164,7 @@ public class MemoActivity extends Activity {
 		ll_content = (LinearLayout) findViewById(R.id.ll_content);
 		scrollView = (MyScrollView) findViewById(R.id.ScrollView1);
 		rl_edit = (RelativeLayout) findViewById(R.id.rl_edit);
+		et_add = (EditText) findViewById(R.id.et_add);
 		
 		InitPullToAddLayout();
 		
@@ -216,6 +228,16 @@ public class MemoActivity extends Activity {
 				LayoutZoom lz = (LayoutZoom) msg.obj;
 				lz.view.setScaleX(lz.sizeX);
 				lz.view.setScaleY(lz.sizeX);
+				break;
+			case 92:
+				LayoutAlpha alpha = (LayoutAlpha) msg.obj;
+				alpha.view.setAlpha(alpha.alpha);
+				break;
+				//ÇåÎú¶ÈÎª0£¬ÔòÒþ²Ø
+			case 94:
+				View v = (View) msg.obj;
+				v.setVisibility(View.GONE);
+				break;
 			}
 			super.handleMessage(msg);
 		}
@@ -224,17 +246,40 @@ public class MemoActivity extends Activity {
 	
 	public class ColorImageOnClickListener implements OnClickListener{
 
+		@SuppressLint("NewApi")
 		@Override
 		public void onClick(View v) {
 			switch(v.getId()){
 			case R.id.iv_blue:
 				pullToAddLayout.ShowingColor2Edit(yColor.blue);
+				et_add.setBackground(getResources().getDrawable(R.drawable.blue));
+				break;
+			case R.id.iv_lightblue:
+				pullToAddLayout.ShowingColor2Edit(yColor.lightblue);
+				et_add.setBackground(getResources().getDrawable(R.drawable.lightblue));
+				break;
+			case R.id.iv_lightpink:
+				pullToAddLayout.ShowingColor2Edit(yColor.lightpink);
+				et_add.setBackground(getResources().getDrawable(R.drawable.lightpink));
+				break;
+			case R.id.iv_pink:
+				pullToAddLayout.ShowingColor2Edit(yColor.pink);
+				et_add.setBackground(getResources().getDrawable(R.drawable.pink));
+				break;
+			case R.id.iv_red:
+				pullToAddLayout.ShowingColor2Edit(yColor.red1);
+				et_add.setBackground(getResources().getDrawable(R.drawable.red1));
+				break;
+			case R.id.iv_yellow:
+				pullToAddLayout.ShowingColor2Edit(yColor.yellow);
+				et_add.setBackground(getResources().getDrawable(R.drawable.yellow));
 				break;
 			}
 		}
 		
 	}
 
+	@SuppressLint("NewApi")
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.memo, menu);

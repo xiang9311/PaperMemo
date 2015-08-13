@@ -3,6 +3,7 @@ package com.xiang.view;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.xiang.model.LayoutAlpha;
 import com.xiang.model.LayoutMove;
 import com.xiang.model.LayoutPosition;
 import com.xiang.model.LayoutZoom;
@@ -35,7 +36,7 @@ public class PullToAddLayout extends RelativeLayout {
 	/**
 	 * 动画执行的毫秒数
 	 */
-	public static final int during = 200;
+	public static final int during = 300;
 	/**
 	 * 动画线程休眠的时间
 	 */
@@ -268,10 +269,12 @@ public class PullToAddLayout extends RelativeLayout {
 					layoutShowColor(ev);
 				}
 				if(pullstate.pulltosave == state){
+					Log.d(TAG,"save to normal");
 					state = pullstate.normal;
 					layoutToNormal(ev);
 					//保存编辑的内容
-					listener.saveMemo();
+					if(null != listener)
+						listener.saveMemo();
 				}
 			}
 			//如果下拉距离不够
@@ -281,12 +284,13 @@ public class PullToAddLayout extends RelativeLayout {
 					layoutAddToNormal(ev);
 				}
 				if(pullstate.pulltosave == state){
+					Log.d(TAG,"save to adding");
 					state = pullstate.adding;
 					layoutToAdding(ev);
 				}
 			}
 			break;
-			default:break;
+		default:break;
 		}
 		
 		super.dispatchTouchEvent(ev);
@@ -315,8 +319,7 @@ public class PullToAddLayout extends RelativeLayout {
 
 
 	private void layoutToAdding(MotionEvent ev) {
-		// TODO Auto-generated method stub
-		
+		Log.d(TAG,ll_content.getTop()+"?");
 	}
 	
 	
@@ -348,6 +351,7 @@ public class PullToAddLayout extends RelativeLayout {
 	 * @param ev
 	 */
 	private void layoutShowColor(MotionEvent ev) {
+		this.invalidate();
 		LayoutMove move = new LayoutMove(ll_content,ll_content.getLeft(),
 				(int) desDistence,
 				ll_content.getRight(),
@@ -361,7 +365,7 @@ public class PullToAddLayout extends RelativeLayout {
 
 
 	private boolean isPullOk(MotionEvent ev) {
-		if(imageViews[0].getScaleX() >= 1.0f)
+		if(pullstate.pulltoadd == state && imageViews[0].getScaleX() >= 1.0f)
 			return true;
 		return false;
 	}
@@ -416,16 +420,21 @@ public class PullToAddLayout extends RelativeLayout {
 	}
 	
 	public void ShowingColor2Edit(yColor color){
-		ExecutorService  service = Executors.newSingleThreadExecutor();
-		rl_edit.setScaleX(0);
-		rl_edit.setScaleY(0);
-		rl_edit.setVisibility(View.VISIBLE);
-//		Log.d("TAG",""+rl_edit.getHeight());
-		LayoutZoom zoom = new LayoutZoom(fl_pullhead,0.0f,0.0f);
-		service.execute(new SizeLayoutThread(zoom));
 		
-		LayoutZoom z = new LayoutZoom(rl_edit,1.0f,1.0f);
-		Thread t1 = new SizeLayoutThread(z);
+		
+		state = pullstate.adding;
+		
+		ExecutorService  service = Executors.newSingleThreadExecutor();
+		rl_edit.setAlpha(0);
+		rl_edit.setVisibility(View.VISIBLE);
+		
+		LayoutAlpha za = new LayoutAlpha(fl_pullhead,0);
+		Thread t1a = new AlphaLayoutThread(za);
+		t1a.start();
+		
+		LayoutAlpha z = new LayoutAlpha(rl_edit,1.0f);
+		z.delay = 300;
+		Thread t1 = new AlphaLayoutThread(z);
 
 		service.execute(t1);
 		
@@ -435,10 +444,6 @@ public class PullToAddLayout extends RelativeLayout {
 				(int)nheight);
 		Thread t2 = new MoveLayoutThread(move);
 		service.execute(t2);
-		
-		
-		
-		
 		
 	}
 
@@ -477,6 +482,67 @@ public class PullToAddLayout extends RelativeLayout {
 		this.context = context;
 	}
 	
+	/**
+	 * 透明度
+	 * @author 祥祥
+	 *
+	 */
+	class AlphaLayoutThread extends Thread{
+		
+		public LayoutAlpha zoom;
+		
+		public AlphaLayoutThread(LayoutAlpha zoom){
+			this.zoom = zoom;
+		}
+		
+		@Override
+		public void run() {
+			
+			try {
+				sleep(zoom.delay);
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			}
+			
+			long time = System.currentTimeMillis();
+			float alpha = zoom.view.getAlpha();
+			while(true){
+				try {
+					Thread.sleep(sleeptime);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				long t = System.currentTimeMillis();
+				float y = t - time;
+				if(y >= during)
+					break;
+				float toalpha = (zoom.alpha - alpha) / during * y + alpha;
+				LayoutAlpha z = new LayoutAlpha(zoom.view, toalpha);
+				Message msg = new Message();
+				msg.what = 92;
+				msg.obj = z;
+				MemoActivity.that.mHandler.sendMessage(msg);
+			}
+			Message msg = new Message();
+			msg.what = 92;
+			msg.obj = zoom;
+			MemoActivity.that.mHandler.sendMessage(msg);
+			if(0 >= zoom.alpha){
+				Message msg1 = new Message();
+				msg1.what = 94;
+				msg1.obj = zoom.view;
+				MemoActivity.that.mHandler.sendMessage(msg1);
+			}
+		}
+		
+	}
+	
+	
+	/**
+	 * 缩放
+	 * @author 祥祥
+	 *
+	 */
 	class SizeLayoutThread extends Thread{
 		
 		public LayoutZoom zoom;
@@ -487,6 +553,13 @@ public class PullToAddLayout extends RelativeLayout {
 		
 		@Override
 		public void run() {
+			
+			try {
+				sleep(zoom.delay);
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			
 			long time = System.currentTimeMillis();
 			float size_x = zoom.view.getScaleX();
@@ -500,7 +573,7 @@ public class PullToAddLayout extends RelativeLayout {
 				float y = t - time;
 				if(y >= during)
 					break;
-				float tosize = (zoom.sizeX - size_x) / 300 * y + size_x;
+				float tosize = (zoom.sizeX - size_x) / during * y + size_x;
 				LayoutZoom z = new LayoutZoom(zoom.view, tosize, tosize);
 				Message msg = new Message();
 				msg.what = 91;

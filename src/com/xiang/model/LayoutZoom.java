@@ -13,4 +13,14 @@ public class LayoutZoom {
 		this.sizeY = sizeY;
 	}
 	
+	public long delay = 0;
+	public long getDelay() {
+		return delay;
+	}
+
+	public void setDelay(long delay) {
+		this.delay = delay;
+	}
+	
+	
 }

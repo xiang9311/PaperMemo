@@ -92,7 +92,7 @@
                 android:layout_height="@dimen/size_edittext"
                 android:background="@drawable/lightpink"
                 android:gravity="top"
-                android:hint="@string/edithint1"
+                android:textColor="@color/white"
                 android:maxLength="80"
                 android:padding="5dp"
                 android:textSize="@dimen/size_text_edit" />
@@ -120,6 +120,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/white"
+            android:layout_below="@+id/rl_edit"
             android:minHeight="200dp"
             android:orientation="vertical" >
             
@@ -129,8 +130,6 @@
             android:id="@+id/ll_tags"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_below="@+id/fl_edit"
             android:background="@color/white"
             android:orientation="horizontal" >
 
